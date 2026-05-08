@@ -1,0 +1,127 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.jsx';
+
+/* Design System — Light Mode */
+:root {
+    --primary: #4A6CF7;
+    --primary-hover: #3B5DE6;
+    --primary-foreground: #FFFFFF;
+    --background: #F6F7FB;
+    --foreground: #323338;
+    --surface: #FFFFFF;
+    --card: #FFFFFF;
+    --card-foreground: #323338;
+    --popover: #FFFFFF;
+    --popover-foreground: #323338;
+    --secondary: #E6E9EF;
+    --secondary-foreground: #323338;
+    --muted: #F6F7FB;
+    --muted-foreground: #676879;
+    --accent: #F0F2F8;
+    --accent-foreground: #323338;
+    --destructive: #E44258;
+    --destructive-foreground: #FFFFFF;
+    --success: #00CA72;
+    --warning: #FDAB3D;
+    --border: #E6E9EF;
+    --input: #E6E9EF;
+    --ring: #4A6CF7;
+    --sidebar-bg: #1E1F2B;
+    --sidebar-text: #A1A3B5;
+    --sidebar-active: #FFFFFF;
+    --text: #323338;
+    --text-muted: #676879;
+
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --shadow-modal: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Design System — Dark Mode */
+.dark {
+    --primary: #6B8AFF;
+    --primary-hover: #5A79EE;
+    --primary-foreground: #FFFFFF;
+    --background: #1A1B2E;
+    --foreground: #E8E8EA;
+    --surface: #232438;
+    --card: #232438;
+    --card-foreground: #E8E8EA;
+    --popover: #232438;
+    --popover-foreground: #E8E8EA;
+    --secondary: #2E3047;
+    --secondary-foreground: #E8E8EA;
+    --muted: #2E3047;
+    --muted-foreground: #9B9DB0;
+    --accent: #2E3047;
+    --accent-foreground: #E8E8EA;
+    --destructive: #FF6B7A;
+    --destructive-foreground: #FFFFFF;
+    --success: #33D68F;
+    --warning: #FDAB3D;
+    --border: #2E3047;
+    --input: #2E3047;
+    --ring: #6B8AFF;
+    --sidebar-bg: #141521;
+    --sidebar-text: #8E90A3;
+    --sidebar-active: #FFFFFF;
+    --text: #E8E8EA;
+    --text-muted: #9B9DB0;
+}
+
+/* Map design system to Tailwind theme */
+@theme inline {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-success: var(--success);
+    --color-warning: var(--warning);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+}
+
+/* NProgress override */
+#nprogress .bar {
+    background: var(--primary) !important;
+    height: 3px !important;
+}
+#nprogress .peg {
+    box-shadow: 0 0 10px var(--primary), 0 0 5px var(--primary) !important;
+}
+
+/* Base styles */
+body {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: var(--foreground);
+    background-color: var(--background);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}

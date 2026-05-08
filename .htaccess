@@ -1,0 +1,19 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Serve static files from public/ directly (images, css, js, fonts, etc.)
+    RewriteRule ^(build/.*)$ public/$1 [L]
+    RewriteRule ^(.*\.(png|jpg|jpeg|gif|svg|ico|css|js|woff2?|ttf|eot|webp|mp4|webm))$ public/$1 [L,NC]
+
+    # Send everything else to the front controller
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [L]
+
+    # Handle directory root
+    DirectoryIndex index.php
+</IfModule>
