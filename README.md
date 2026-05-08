@@ -1,59 +1,176 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SinapSYS Projects
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Plataforma personal de gestión de proyectos bajo metodología **PMI**, con tareas, calendario, asistente IA, multiusuario y autenticación OTP.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Gestión de Proyectos
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Creación de proyectos
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Cada proyecto captura la información clave para evaluar su viabilidad y priorización:
 
-## Learning Laravel
+- **Nombre, tipo y descripción**
+- **Fase PMI**: Inicio → Planificación → Ejecución → Monitoreo → Cierre
+- **Prioridad**: P1 Crítica / P2 Alta / P3 Media / P4 Baja
+- **Impacto y Esfuerzo** (escala 1–10) — base para la Matriz de Prioridad
+- **Viabilidad**: mercado, financiero, técnico y riesgo (RadarChart)
+- **Tags, color, links y documentos**
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+Los proyectos también pueden crearse mediante el **Asistente IA** en modo conversacional: describes tu idea y el sistema propone nombre, descripción, fases y tareas iniciales.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+### Ciclo de vida (fases PMI)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```
+Inicio → Planificación → Ejecución → Monitoreo → Cierre
+```
 
-### Premium Partners
+Cada fase incluye una **lista de tareas PMI predefinidas** (checklist) que guían al equipo en las actividades estándar de cada etapa. El progreso visual se muestra en la barra de fases en la parte superior de cada proyecto.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+### Tareas
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Dentro de cada proyecto se gestionan tareas con:
 
-## Code of Conduct
+- **Prioridad** (P1–P4), **categoría**, **fecha de entrega** y **tiempo estimado**
+- **Pasos** — subtareas dentro de una tarea
+- **Notas** — criterios de aceptación o contexto
+- **Asignación** — asignar tareas a miembros del equipo
+- **Estados**: pendiente → en progreso → completada
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+La **Vista Foco** (`/tasks`) agrupa todas las tareas entre proyectos en secciones: Vencidas, Hoy, Próximas 7 días, Sin fecha y Completadas.
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Matriz de Prioridad
 
-## License
+La vista `/matrix` muestra todos los proyectos en un **ScatterChart de 4 cuadrantes** según su impacto vs. esfuerzo:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+| Cuadrante | Descripción |
+|-----------|-------------|
+| Alto impacto / Bajo esfuerzo | **Hacer primero** |
+| Alto impacto / Alto esfuerzo | **Planificar** |
+| Bajo impacto / Bajo esfuerzo | **Delegar** |
+| Bajo impacto / Alto esfuerzo | **Eliminar** |
+
+---
+
+### Viabilidad
+
+Cada proyecto tiene un **RadarChart** con 4 dimensiones evaluadas del 1 al 10:
+- **Mercado** — demanda y oportunidad
+- **Financiero** — retorno y recursos
+- **Técnico** — factibilidad de implementación
+- **Riesgo** — exposición y mitigación
+
+---
+
+### Equipo y roles
+
+Los proyectos son multiusuario. El propietario puede invitar colaboradores por email con diferentes roles:
+
+| Rol | Acceso |
+|-----|--------|
+| **Propietario** | Control total del proyecto |
+| **Manager** | Edita proyecto, invita miembros, gestiona tareas |
+| **Colaborador** | Crea y edita tareas, usa el asistente IA |
+| **Observador** | Solo lectura |
+
+La invitación llega por email con un enlace de aceptación. Si el invitado no tiene cuenta, puede registrarse directamente desde el link.
+
+---
+
+### Asistente IA por proyecto
+
+Cada proyecto tiene un **chat con Claude (Anthropic)** que conoce el contexto: nombre, fase, prioridad, impacto, esfuerzo y viabilidad. Sirve para:
+
+- Resolver dudas sobre la metodología PMI
+- Obtener recomendaciones sobre el proyecto
+- Identificar riesgos y próximos pasos
+
+---
+
+### Calendario
+
+Vista mensual y semanal con todas las tareas de todos los proyectos (propios y de equipo), filtrable por proyecto.
+
+---
+
+### Exportaciones
+
+Exporta tus proyectos y tareas en formato **PDF** o **Excel** desde cualquier vista.
+
+---
+
+## Autenticación
+
+Login mediante **OTP passwordless** (código de 6 dígitos) enviado por:
+- 📧 Email (SMTP)
+- 📱 SMS (Twilio)
+
+También soporta login con contraseña tradicional.
+
+---
+
+## Stack tecnológico
+
+| Capa | Tecnología |
+|------|-----------|
+| Backend | Laravel 12 + PHP 8.2 |
+| Frontend | React 19 + Inertia.js 2 |
+| Estilos | Tailwind CSS v4 + shadcn/ui |
+| Base de datos | MySQL 8 |
+| IA | Anthropic Claude API |
+| SMS | Twilio |
+| Gráficas | Recharts |
+| Exports | DomPDF + Laravel Excel |
+
+---
+
+## Instalación local
+
+```bash
+# Clonar el repositorio
+git clone https://github.com/rickpadro/sinapsys-pmi.git
+cd sinapsys-pmi
+
+# Instalar dependencias
+composer install
+npm install
+
+# Configurar entorno
+cp .env.example .env
+php artisan key:generate
+
+# Configurar base de datos en .env y migrar
+php artisan migrate --seed
+
+# Compilar assets
+npm run build
+
+# Servidor de desarrollo
+php artisan serve
+```
+
+### Variables de entorno requeridas
+
+```env
+DB_DATABASE=sinapsys_projects
+ANTHROPIC_API_KEY=sk-ant-...
+TWILIO_SID=AC...
+TWILIO_TOKEN=...
+TWILIO_FROM=+1...
+MAIL_MAILER=smtp
+MAIL_HOST=...
+MAIL_USERNAME=...
+MAIL_PASSWORD=...
+```
+
+---
+
+## Licencia
+
+Proyecto privado — SinapSYS Ecosistemas © 2026
