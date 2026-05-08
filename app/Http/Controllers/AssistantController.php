@@ -17,18 +17,24 @@ class AssistantController extends Controller
             'message' => ['required', 'string', 'max:2000'],
         ]);
 
-        $phases     = ['Inicio', 'Planificación', 'Ejecución', 'Monitoreo', 'Cierre'];
         $priorities = [1 => 'Crítica', 2 => 'Alta', 3 => 'Media', 4 => 'Baja'];
 
-        $systemPrompt = "Eres un asistente de proyectos PMI. Contexto del proyecto: " .
-            "{$project->name}, tipo {$project->type}, " .
-            "fase " . ($phases[$project->phase] ?? 'Desconocida') . ", " .
-            "prioridad " . ($priorities[$project->priority] ?? 'Media') . ", " .
-            "impacto {$project->impact}/10, esfuerzo {$project->effort}/10, " .
-            "viabilidad mercado {$project->viability_mercado}/10, " .
-            "financiero {$project->viability_financiero}/10, " .
-            "técnico {$project->viability_tecnico}/10, " .
-            "riesgo {$project->viability_riesgo}/10. " .
+        $project->loadMissing(['sections', 'customFields']);
+
+        $sectionsCtx = $project->sections->map(function ($s) {
+            $total = $s->tasks()->count();
+            $done  = $s->tasks()->where('done', true)->count();
+            return "{$s->name} ({$s->status}, {$done}/{$total} tareas completadas)";
+        })->join('; ') ?: 'Sin secciones';
+
+        $fieldsCtx   = $project->customFields->pluck('name')->join(', ') ?: 'ninguno';
+        $methodology = $project->methodology ?? 'pmi';
+
+        $systemPrompt = "Eres un asistente experto en gestión de proyectos con metodología {$methodology}. " .
+            "Proyecto: {$project->name} (tipo: {$project->type}, " .
+            "prioridad: " . ($priorities[$project->priority] ?? 'Media') . "). " .
+            "Secciones/fases: {$sectionsCtx}. " .
+            "Campos personalizados: {$fieldsCtx}. " .
             "Descripción: " . ($project->description ?: 'Sin descripción') . ". " .
             "Responde en español, sé conciso y accionable.";
 

@@ -15,6 +15,7 @@ import { Plus, X, GripVertical } from 'lucide-react';
 
 const DEFAULTS = {
     project_id:  '',
+    section_id:  '',
     assigned_to: '',
     name:        '',
     priority:    3,
@@ -31,7 +32,7 @@ const SELECT_STYLE = {
     color:           'var(--foreground)',
 };
 
-export default function TaskForm({ open, onClose, task, projects, projectMembersMap, defaultProjectId }) {
+export default function TaskForm({ open, onClose, task, projects, projectMembersMap, defaultProjectId, defaultSectionId }) {
     const url    = useUrl();
     const isEdit = !!task;
     const { data, setData, post, put, processing, errors, reset } = useForm(DEFAULTS);
@@ -41,6 +42,7 @@ export default function TaskForm({ open, onClose, task, projects, projectMembers
             if (task) {
                 setData({
                     project_id:     task.project_id || '',
+                    section_id:     task.section_id || '',
                     assigned_to:    task.assigned_to || '',
                     name:           task.name,
                     priority:       task.priority,
@@ -52,9 +54,8 @@ export default function TaskForm({ open, onClose, task, projects, projectMembers
                 });
             } else {
                 reset();
-                if (defaultProjectId) {
-                    setData(prev => ({ ...prev, project_id: defaultProjectId }));
-                }
+                if (defaultProjectId) setData(prev => ({ ...prev, project_id: defaultProjectId }));
+                if (defaultSectionId) setData(prev => ({ ...prev, section_id: defaultSectionId }));
             }
         }
     }, [open, task]);
@@ -66,6 +67,7 @@ export default function TaskForm({ open, onClose, task, projects, projectMembers
         const payload = {
             ...data,
             project_id:     data.project_id || null,
+            section_id:     data.section_id || null,
             assigned_to:    data.assigned_to || null,
             estimated_time: data.estimated_time || null,
             steps:          data.steps.length > 0 ? data.steps : null,

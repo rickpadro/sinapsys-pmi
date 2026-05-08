@@ -15,6 +15,7 @@ class TaskRequest extends FormRequest
     {
         return [
             'project_id'  => ['nullable', 'exists:projects,id'],
+            'section_id'  => ['nullable', 'exists:sections,id'],
             'assigned_to' => ['nullable', 'exists:users,id'],
             'name' => ['required', 'string', 'max:255'],
             'priority' => ['required', 'integer', 'between:1,4'],

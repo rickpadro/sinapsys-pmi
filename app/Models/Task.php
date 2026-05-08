@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Task extends Model
 {
@@ -11,6 +13,7 @@ class Task extends Model
         'user_id',
         'assigned_to',
         'project_id',
+        'section_id',
         'name',
         'priority',
         'category',
@@ -20,17 +23,20 @@ class Task extends Model
         'steps',
         'done',
         'completed_at',
+        'status',
+        'order_in_section',
     ];
 
     protected function casts(): array
     {
         return [
-            'due_date' => 'date',
-            'done' => 'boolean',
-            'completed_at' => 'datetime',
-            'estimated_time' => 'decimal:2',
-            'priority' => 'integer',
-            'steps' => 'array',
+            'due_date'         => 'date',
+            'done'             => 'boolean',
+            'completed_at'     => 'datetime',
+            'estimated_time'   => 'decimal:2',
+            'priority'         => 'integer',
+            'steps'            => 'array',
+            'order_in_section' => 'integer',
         ];
     }
 
@@ -49,6 +55,21 @@ class Task extends Model
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
+    }
+
+    public function section(): BelongsTo
+    {
+        return $this->belongsTo(Section::class);
+    }
+
+    public function taskSteps(): HasMany
+    {
+        return $this->hasMany(TaskStep::class)->orderBy('order');
+    }
+
+    public function customFieldValues(): MorphMany
+    {
+        return $this->morphMany(CustomFieldValue::class, 'target');
     }
 
     // Scopes

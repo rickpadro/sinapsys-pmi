@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
+use App\Models\ProjectRoleDefinition;
+
+// Section, CustomField, MethodologyTemplate importados implícitamente via Eloquent
 
 class Project extends Model
 {
@@ -16,6 +19,9 @@ class Project extends Model
         'user_id',
         'name',
         'type',
+        'methodology',
+        'default_view',
+        'template_id',
         'priority',
         'phase',
         'impact',
@@ -70,6 +76,46 @@ class Project extends Model
     public function members(): HasMany
     {
         return $this->hasMany(ProjectMember::class);
+    }
+
+    public function sections(): HasMany
+    {
+        return $this->hasMany(Section::class)->orderBy('order');
+    }
+
+    public function customFields(): HasMany
+    {
+        return $this->hasMany(CustomField::class)->orderBy('order');
+    }
+
+    public function roleDefinitions(): HasMany
+    {
+        return $this->hasMany(ProjectRoleDefinition::class)->orderBy('order');
+    }
+
+    public function template(): BelongsTo
+    {
+        return $this->belongsTo(MethodologyTemplate::class, 'template_id');
+    }
+
+    public function scopeScrum($query)
+    {
+        return $query->where('methodology', 'scrum');
+    }
+
+    public function scopePmi($query)
+    {
+        return $query->where('methodology', 'pmi');
+    }
+
+    public function isScrum(): bool
+    {
+        return $this->methodology === 'scrum';
+    }
+
+    public function isPmi(): bool
+    {
+        return $this->methodology === 'pmi' || !$this->methodology;
     }
 
     public function getRoleFor(int $userId): ?string

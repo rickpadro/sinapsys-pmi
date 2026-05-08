@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\ProjectRoleDefinition;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -12,6 +13,7 @@ class ProjectMember extends Model
         'user_id',
         'invited_by',
         'role',
+        'role_definition_id',
         'invitation_email',
         'invitation_token',
         'accepted_at',
@@ -35,6 +37,11 @@ class ProjectMember extends Model
     public function inviter(): BelongsTo
     {
         return $this->belongsTo(User::class, 'invited_by');
+    }
+
+    public function roleDefinition(): BelongsTo
+    {
+        return $this->belongsTo(ProjectRoleDefinition::class);
     }
 
     public function isPending(): bool

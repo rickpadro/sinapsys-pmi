@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProjectRequest;
+use App\Models\MethodologyTemplate;
 use App\Models\Project;
+use App\Services\ProjectFromTemplate;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -62,15 +64,36 @@ class ProjectController extends Controller
 
     public function create()
     {
-        return Inertia::render('Projects/Create');
+        return Inertia::render('Projects/Create', [
+            'templates' => MethodologyTemplate::orderBy('id')->get(),
+        ]);
     }
 
     public function store(ProjectRequest $request)
     {
         $nextSlot = ($request->user()->projects()->max('sort_order') ?? -1) + 1;
-        $request->user()->projects()->create(array_merge($request->validated(), ['sort_order' => $nextSlot]));
 
-        return redirect()->route('projects.index')
+        $validated = array_merge($request->validated(), [
+            'sort_order' => $nextSlot,
+            'phase'      => $request->validated()['phase']      ?? 0,
+            'impact'     => $request->validated()['impact']     ?? 5,
+            'effort'     => $request->validated()['effort']     ?? 5,
+            'viability_mercado'    => $request->validated()['viability_mercado']    ?? 5,
+            'viability_financiero' => $request->validated()['viability_financiero'] ?? 5,
+            'viability_tecnico'    => $request->validated()['viability_tecnico']    ?? 5,
+            'viability_riesgo'     => $request->validated()['viability_riesgo']     ?? 5,
+        ]);
+
+        $project = $request->user()->projects()->create($validated);
+
+        if ($request->template_id) {
+            $template = MethodologyTemplate::find($request->template_id);
+            if ($template) {
+                app(ProjectFromTemplate::class)->applyTemplate($project, $template);
+            }
+        }
+
+        return redirect()->route('projects.show', $project)
             ->with('success', 'Proyecto creado.');
     }
 
@@ -80,8 +103,14 @@ class ProjectController extends Controller
         abort_if(!$role, 403);
 
         $project->load([
-            'tasks'     => fn ($q) => $q->orderBy('priority')->orderBy('due_date'),
+            'tasks'           => fn ($q) => $q->orderBy('priority')->orderBy('due_date'),
             'user:id,name,email',
+            'sections'        => fn ($q) => $q->orderBy('order')->with([
+                'tasks' => fn ($tq) => $tq->orderBy('order_in_section')->orderBy('priority')
+                    ->with('assignee:id,name'),
+            ]),
+            'customFields',
+            'roleDefinitions',
         ]);
         $project->loadCount([
             'tasks as pending_tasks_count'   => fn ($q) => $q->where('done', false),

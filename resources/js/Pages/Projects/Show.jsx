@@ -5,21 +5,19 @@ import PhaseProgress from '@/Components/Projects/PhaseProgress';
 import PhaseTaskList from '@/Components/Projects/PhaseTaskList';
 import ViabilityRadar from '@/Components/Projects/ViabilityRadar';
 import AssistantPanel from '@/Components/AI/AssistantPanel';
-import TaskForm from '@/Components/Tasks/TaskForm';
 import TeamTab from '@/Components/Projects/TeamTab';
+import SectionList from '@/Components/Sections/SectionList';
 import { Button } from '@/Components/ui/button';
 import { Badge } from '@/Components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
-import { PRIORITIES, PROJECT_TYPES, PMI_PHASES, TASK_CATEGORIES } from '@/Lib/constants';
+import { PRIORITIES, PROJECT_TYPES } from '@/Lib/constants';
 import { useUrl } from '@/Lib/utils';
 import { Input } from '@/Components/ui/input';
-import { Pencil, Trash2, CheckCircle2, Circle, Plus, ExternalLink, X, Users } from 'lucide-react';
+import { Pencil, Trash2, Plus, ExternalLink, X, Users, LayoutGrid, GanttChartSquare, TrendingDown, Zap } from 'lucide-react';
 
 export default function Show({ project, aiMessages, members, currentRole, isOwner }) {
     const url = useUrl();
     const priority = PRIORITIES[project.priority];
-    const [taskFormOpen, setTaskFormOpen] = useState(false);
-    const [editingTask, setEditingTask] = useState(null);
 
     function handleDelete() {
         if (confirm('¿Eliminar este proyecto?')) {
@@ -58,7 +56,17 @@ export default function Show({ project, aiMessages, members, currentRole, isOwne
                         I:{project.impact}/E:{project.effort}
                     </span>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
+                    <Link href={url(`/projects/${project.id}/board`)}>
+                        <Button variant="outline" size="sm">
+                            <LayoutGrid size={14} /> Tablero
+                        </Button>
+                    </Link>
+                    <Link href={url(`/projects/${project.id}/timeline`)}>
+                        <Button variant="outline" size="sm">
+                            <GanttChartSquare size={14} /> Timeline
+                        </Button>
+                    </Link>
                     {(isOwner || currentRole === 'manager') && (
                         <Link href={url(`/projects/${project.id}/edit`)}>
                             <Button variant="outline" size="sm">
@@ -106,6 +114,9 @@ export default function Show({ project, aiMessages, members, currentRole, isOwne
                             </span>
                         )}
                     </TabsTrigger>
+                    {(isOwner || currentRole === 'manager') && (
+                        <TabsTrigger value="config">Config</TabsTrigger>
+                    )}
                 </TabsList>
 
                 <TabsContent value="info">
@@ -195,54 +206,34 @@ export default function Show({ project, aiMessages, members, currentRole, isOwne
 
                 <TabsContent value="tasks">
                     <div className="space-y-4">
-                        {/* Phase checklist */}
-                        <div
-                            className="rounded-lg p-4"
-                            style={{
-                                backgroundColor: 'var(--surface)',
-                                border: '1px solid var(--border)',
-                            }}
-                        >
-                            <PhaseTaskList project={project} />
-                        </div>
+                        {/* PMI phase checklist */}
+                        {(project.methodology === 'pmi' || !project.methodology) && (
+                            <div
+                                className="rounded-lg p-4"
+                                style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}
+                            >
+                                <PhaseTaskList project={project} />
+                            </div>
+                        )}
 
-                        {/* Real tasks */}
+                        {/* Sections with tasks */}
                         <div
                             className="rounded-lg p-4"
-                            style={{
-                                backgroundColor: 'var(--surface)',
-                                border: '1px solid var(--border)',
-                            }}
+                            style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}
                         >
                             <div className="mb-3 flex items-center justify-between">
                                 <h3 className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>
-                                    Tareas del proyecto
+                                    Tareas por sección
                                 </h3>
-                                <div className="flex items-center gap-3">
-                                    {project.tasks && project.tasks.length > 0 && (
-                                        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                                            {project.tasks.filter(t => t.done).length}/{project.tasks.length}
-                                        </span>
-                                    )}
-                                    <Button
-                                        size="xs"
-                                        onClick={() => { setEditingTask(null); setTaskFormOpen(true); }}
-                                    >
-                                        <Plus size={12} /> Nueva tarea
-                                    </Button>
-                                </div>
+                                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                                    {project.completed_tasks_count}/{project.pending_tasks_count + project.completed_tasks_count} completadas
+                                </span>
                             </div>
-                            {project.tasks && project.tasks.length > 0 ? (
-                                <div className="space-y-2">
-                                    {project.tasks.map((task) => (
-                                        <TaskCard key={task.id} task={task} url={url} onEdit={(t) => { setEditingTask(t); setTaskFormOpen(true); }} />
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="py-4 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
-                                    Sin tareas. Agrega la primera tarea de este proyecto.
-                                </p>
-                            )}
+                            <SectionList
+                                project={project}
+                                currentRole={currentRole}
+                                members={members}
+                            />
                         </div>
                     </div>
                 </TabsContent>
@@ -261,15 +252,39 @@ export default function Show({ project, aiMessages, members, currentRole, isOwne
                         currentRole={currentRole}
                     />
                 </TabsContent>
+
+                {(isOwner || currentRole === 'manager') && (
+                    <TabsContent value="config">
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <ConfigCard
+                                title="Campos personalizados"
+                                description="Define campos para tareas, secciones o el proyecto."
+                                href={url(`/projects/${project.id}/custom-fields`)}
+                                count={project.customFields?.length ?? 0}
+                                unit="campos"
+                            />
+                            <ConfigCard
+                                title="Roles del proyecto"
+                                description="Crea roles adicionales con permisos personalizados."
+                                href={url(`/projects/${project.id}/roles`)}
+                                count={project.roleDefinitions?.length ?? 0}
+                                unit="roles"
+                            />
+                            <ConfigCard
+                                title="Burndown Chart"
+                                description="Velocidad de avance por sprint. Requiere campo story_points."
+                                href={url(`/projects/${project.id}/reports/burndown`)}
+                            />
+                            <ConfigCard
+                                title="Velocity Chart"
+                                description="Story points completados por sección/sprint."
+                                href={url(`/projects/${project.id}/reports/velocity`)}
+                            />
+                        </div>
+                    </TabsContent>
+                )}
             </Tabs>
 
-            <TaskForm
-                open={taskFormOpen}
-                onClose={() => { setTaskFormOpen(false); setEditingTask(null); }}
-                task={editingTask}
-                projects={[{ id: project.id, name: project.name, color: project.color }]}
-                defaultProjectId={project.id}
-            />
         </AppLayout>
     );
 }
@@ -389,97 +404,26 @@ function LinksSection({ project, url }) {
     );
 }
 
-function TaskCard({ task, url, onEdit }) {
-    const [expanded, setExpanded] = useState(false);
-    const p = PRIORITIES[task.priority];
-    const isOverdue = !task.done && task.due_date && new Date(task.due_date) < new Date(new Date().toDateString());
-    const steps = task.steps || [];
-    const stepsDone = steps.filter(s => s.done).length;
-
+function ConfigCard({ title, description, href, count, unit }) {
     return (
-        <div
-            className="group rounded-lg border p-3"
-            style={{ borderColor: 'var(--border)', backgroundColor: task.done ? 'var(--accent)' : 'transparent' }}
+        <a
+            href={href}
+            className="block rounded-lg p-4 transition-shadow hover:shadow-md"
+            style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)' }}
         >
-            {/* Header row */}
-            <div className="flex items-center gap-2">
-                <button
-                    onClick={() => router.patch(url(`/tasks/${task.id}/toggle`), {}, { preserveScroll: true })}
-                    className="shrink-0"
-                    style={{ color: task.done ? 'var(--success)' : 'var(--border)' }}
-                >
-                    {task.done ? <CheckCircle2 size={18} /> : <Circle size={18} />}
-                </button>
-                <span className="shrink-0 text-sm" style={{ color: p.color }}>{p.icon}</span>
-                <button
-                    onClick={() => setExpanded(!expanded)}
-                    className={`min-w-0 flex-1 text-left text-sm font-medium ${task.done ? 'line-through' : ''}`}
-                    style={{ color: task.done ? 'var(--text-muted)' : 'var(--foreground)' }}
-                >
-                    {task.name}
-                </button>
-                <span className="shrink-0 text-[10px]" style={{ color: 'var(--text-muted)' }}>
-                    {TASK_CATEGORIES[task.category] || task.category}
-                </span>
-                {task.due_date && (
-                    <span className="shrink-0 text-xs" style={{ color: isOverdue ? 'var(--destructive)' : 'var(--text-muted)' }}>
-                        {new Date(task.due_date).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}
-                    </span>
-                )}
-                {steps.length > 0 && (
-                    <span className="shrink-0 text-[10px]" style={{ color: 'var(--text-muted)' }}>
-                        {stepsDone}/{steps.length}
-                    </span>
-                )}
-                <button
-                    onClick={(e) => { e.stopPropagation(); onEdit?.(task); }}
-                    className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
-                    style={{ color: 'var(--text-muted)' }}
-                >
-                    <Pencil size={13} />
-                </button>
-            </div>
-
-            {/* Expanded details */}
-            {expanded && (
-                <div className="mt-3 ml-7 space-y-2 border-t pt-3" style={{ borderColor: 'var(--border)' }}>
-                    {/* Notes */}
-                    {task.notes && (
-                        <p className="text-xs whitespace-pre-wrap" style={{ color: 'var(--text-muted)' }}>
-                            {task.notes}
-                        </p>
-                    )}
-
-                    {/* Steps */}
-                    {steps.length > 0 && (
-                        <div className="space-y-1">
-                            <p className="text-[10px] font-medium uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>
-                                Pasos
-                            </p>
-                            {steps.map((step, i) => (
-                                <div key={i} className="flex items-center gap-2 text-xs">
-                                    <span style={{ color: step.done ? 'var(--success)' : 'var(--border)' }}>
-                                        {step.done ? '✓' : '○'}
-                                    </span>
-                                    <span
-                                        className={step.done ? 'line-through' : ''}
-                                        style={{ color: step.done ? 'var(--text-muted)' : 'var(--foreground)' }}
-                                    >
-                                        {step.text}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    {/* Meta */}
-                    {task.estimated_time && (
-                        <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
-                            Estimado: {task.estimated_time}h
-                        </p>
-                    )}
+            <div className="flex items-start justify-between gap-2">
+                <div>
+                    <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>{title}</p>
+                    <p className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>{description}</p>
                 </div>
-            )}
-        </div>
+                {count > 0 && (
+                    <span className="flex-shrink-0 text-xs px-2 py-0.5 rounded-full"
+                        style={{ backgroundColor: 'var(--primary)', color: '#fff' }}>
+                        {count} {unit}
+                    </span>
+                )}
+            </div>
+        </a>
     );
 }
+

@@ -2,6 +2,12 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\BoardViewController;
+use App\Http\Controllers\BurndownReportController;
+use App\Http\Controllers\CustomFieldController;
+use App\Http\Controllers\ProjectRoleController;
+use App\Http\Controllers\TimelineViewController;
+use App\Http\Controllers\VelocityReportController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AiProjectController;
 use App\Http\Controllers\AssistantController;
@@ -10,7 +16,9 @@ use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectMemberController;
+use App\Http\Controllers\SectionController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TaskStepController;
 use App\Http\Controllers\UserAdminController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -93,6 +101,41 @@ Route::middleware('auth')->group(function () {
     Route::get('/export/tasks/{format}', [ExportController::class, 'tasks'])->name('export.tasks');
 
     Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar.index');
+
+    // v2.0 · Sections
+    Route::post('/projects/{project}/sections', [SectionController::class, 'store'])->name('sections.store');
+    Route::put('/projects/{project}/sections/{section}', [SectionController::class, 'update'])->name('sections.update');
+    Route::delete('/projects/{project}/sections/{section}', [SectionController::class, 'destroy'])->name('sections.destroy');
+    Route::post('/projects/{project}/sections/reorder', [SectionController::class, 'reorder'])->name('sections.reorder');
+
+    // v2.0 · Task Steps
+    Route::post('/tasks/{task}/steps', [TaskStepController::class, 'store'])->name('task-steps.store');
+    Route::put('/tasks/{task}/steps/{step}', [TaskStepController::class, 'update'])->name('task-steps.update');
+    Route::delete('/tasks/{task}/steps/{step}', [TaskStepController::class, 'destroy'])->name('task-steps.destroy');
+    Route::patch('/tasks/{task}/steps/{step}/toggle', [TaskStepController::class, 'toggle'])->name('task-steps.toggle');
+    Route::post('/tasks/{task}/steps/reorder', [TaskStepController::class, 'reorder'])->name('task-steps.reorder');
+
+    // v2.0 · Custom Fields
+    Route::get('/projects/{project}/custom-fields', [CustomFieldController::class, 'index'])->name('custom-fields.index');
+    Route::post('/projects/{project}/custom-fields', [CustomFieldController::class, 'store'])->name('custom-fields.store');
+    Route::put('/projects/{project}/custom-fields/{customField}', [CustomFieldController::class, 'update'])->name('custom-fields.update');
+    Route::delete('/projects/{project}/custom-fields/{customField}', [CustomFieldController::class, 'destroy'])->name('custom-fields.destroy');
+    Route::post('/custom-field-values', [CustomFieldController::class, 'upsertValue'])->name('custom-field-values.upsert');
+
+    // v2.0 · Board View
+    Route::get('/projects/{project}/board', [BoardViewController::class, 'show'])->name('projects.board');
+    Route::patch('/projects/{project}/board/move-task', [BoardViewController::class, 'moveTask'])->name('projects.board.move');
+
+    // v2.0 · Timeline + Reports
+    Route::get('/projects/{project}/timeline', [TimelineViewController::class, 'show'])->name('projects.timeline');
+    Route::get('/projects/{project}/reports/burndown', [BurndownReportController::class, 'show'])->name('projects.reports.burndown');
+    Route::get('/projects/{project}/reports/velocity', [VelocityReportController::class, 'show'])->name('projects.reports.velocity');
+
+    // v2.0 · Project Roles
+    Route::get('/projects/{project}/roles', [ProjectRoleController::class, 'index'])->name('projects.roles.index');
+    Route::post('/projects/{project}/roles', [ProjectRoleController::class, 'store'])->name('projects.roles.store');
+    Route::put('/projects/{project}/roles/{role}', [ProjectRoleController::class, 'update'])->name('projects.roles.update');
+    Route::delete('/projects/{project}/roles/{role}', [ProjectRoleController::class, 'destroy'])->name('projects.roles.destroy');
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
