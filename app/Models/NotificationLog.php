@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class NotificationLog extends Model {
+    protected $table = 'notification_log';
     protected $fillable = ['user_id', 'type', 'payload', 'success', 'response_code', 'error_reason'];
 
     protected function casts(): array {
