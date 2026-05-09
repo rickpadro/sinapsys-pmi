@@ -17,4 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
-    })->create();
+    })
+    ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule): void {
+        $schedule->command('sinapsys:check-deadlines')->dailyAt('08:00');
+        $schedule->command('sinapsys:check-milestones')->dailyAt('08:15');
+        $schedule->command('sinapsys:recalculate-critical-path')->dailyAt('06:00');
+    })
+    ->create();

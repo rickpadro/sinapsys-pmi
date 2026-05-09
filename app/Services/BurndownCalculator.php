@@ -8,6 +8,7 @@ class BurndownCalculator
 {
     public function calculate(Section $section): array
     {
+        if ($section->type !== 'sprint') return [];
         if (!$section->start_date || !$section->end_date) return [];
 
         $spField = $section->project->customFields

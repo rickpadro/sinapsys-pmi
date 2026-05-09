@@ -1,6 +1,8 @@
-# SinapSYS Projects
+# SinapSYS Projects v3.0
 
-Plataforma personal de gestión de proyectos PMI con tareas, calendario y asistente IA.
+Plataforma multi-metodología de gestión de proyectos complejos. Caso de validación: EF-Ai360 (10 sprints · 7 tracks · 8 riesgos · 31 decisiones · 5 hitos).
+
+> Versión actual: **v3.0** (DDS v3.0 completo). Construida sobre v2.1 (refactor estructural + Kanban + dependencias + time tracking + PWA).
 
 ## Comandos
 
@@ -11,6 +13,11 @@ Plataforma personal de gestión de proyectos PMI con tareas, calendario y asiste
 - `php artisan migrate:fresh --seed` — Reset DB con datos de ejemplo
 - `php artisan test` — Ejecutar tests
 - `php artisan test --filter=Feature` — Solo tests de integración
+- `php artisan sinapsys:recalculate-critical-path` — Recalcular CPM todos los proyectos
+- `php artisan sinapsys:recalculate-critical-path {id}` — Recalcular CPM proyecto específico
+- `php artisan sinapsys:check-deadlines` — Notificar tareas que vencen mañana (cron 08:00)
+- `php artisan sinapsys:check-milestones` — Notificar hitos próximos (cron 08:15)
+- `php artisan vapid:generate` — Generar par de llaves VAPID para push notifications
 
 ## Tech Stack
 
@@ -20,8 +27,8 @@ Laravel 12 + Inertia.js 2 + React 19 + Tailwind CSS v4 + shadcn/ui + MySQL 8 + S
 
 ### Estructura
 - `app/Http/Controllers/` — Controllers de Inertia (retornan Inertia::render)
-- `app/Models/` — Eloquent models (Project, Task, AiMessage)
-- `app/Services/` — Lógica de negocio (Anthropic, PriorityMatrix, Export)
+- `app/Models/` — Eloquent models (Project, Task, Section, Milestone, Risk, ProjectDecision, MemberCapacity)
+- `app/Services/` — Lógica de negocio (Anthropic, CriticalPathCalculator, BurndownCalculator, VelocityCalculator, MilestoneTracker, RiskMatrixCalculator, CapacityPlanner, PushNotificationService)
 - `app/Http/Requests/` — Form Requests con validación
 - `resources/js/Pages/` — Páginas React (una por ruta)
 - `resources/js/Components/` — Componentes React organizados por dominio
@@ -116,6 +123,39 @@ Browser → Inertia request → Laravel Controller → Eloquent → MySQL → Co
 8. **Un componente por archivo, máx 300 líneas.**
 9. **Custom Fields polimórficos solo vía `CustomFieldResolver` service.** Nunca acceder `custom_field_values` directo desde controllers — usar el service para garantizar casts correctos.
 
+## Modelos v3.0 (nuevos)
+
+- `Milestone` — Hitos contractuales con estado auto-evaluado (planned/at_risk/met/missed)
+- `Risk` — Registro de riesgos con probabilidad × impacto (heat score)
+- `RiskMitigation` — Pivot: Risk ↔ Task con rationale
+- `ProjectDecision` — Log de decisiones/definiciones (DEF-XXX) con bloqueos
+- `MemberCapacity` — Dedicación % por ProjectMember+Section
+- `NotificationLog` — Auditoría de push notifications enviadas
+
+## Section Types (v3.0)
+
+- `sprint` — Sprint Scrum estándar, cuenta en Burndown y Velocity
+- `discovery` — Fase exploratoria, no aparece en métricas Scrum (ej: Sprint 0)
+- `continuous` — Track paralelo continuo, cruza todos los sprints (ej: Infra & DevOps)
+
+## Critical Path (v3.0)
+
+- `CriticalPathCalculator` — CPM forward/backward pass, persiste `tasks.on_critical_path`
+- Excluye sections `continuous` para no inflar el path
+- Siempre incluye tareas `is_blocker = true` en el camino crítico
+- Ejecutar tras cambios de dependencias: `php artisan sinapsys:recalculate-critical-path`
+
+## Variables de Entorno (v3.0)
+
+| Variable | Descripción |
+|----------|-------------|
+| `DB_DATABASE` | sinapsys_projects |
+| `ANTHROPIC_API_KEY` | API key de Anthropic |
+| `ANTHROPIC_MODEL` | claude-sonnet-4-20250514 |
+| `VAPID_SUBJECT` | mailto: para push notifications |
+| `VAPID_PUBLIC_KEY` | Llave pública VAPID |
+| `VAPID_PRIVATE_KEY` | Llave privada VAPID |
+
 ## Blueprint
 
-El blueprint completo está en `.iaaf/output/sinapsys-projects-blueprint.md`. Contiene los 13 pasos de construcción detallados, modelo de datos SQL, diagramas de arquitectura, y todas las especificaciones.
+El blueprint de v2.0 está en `.iaaf/output/sinapsys-projects-blueprint.md`. La especificación v3.0 está en `.docs/DDS_SinapSYS_Projects_v3.0.md`.

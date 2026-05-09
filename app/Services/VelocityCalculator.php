@@ -12,6 +12,7 @@ class VelocityCalculator
         if (!$spField) return [];
 
         return $project->sections()
+            ->where('type', 'sprint')
             ->orderBy('order')
             ->with(['tasks' => fn ($q) => $q->with([
                 'customFieldValues' => fn ($vq) => $vq->where('custom_field_id', $spField->id),

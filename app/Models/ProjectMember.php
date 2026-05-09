@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Models\MemberCapacity;
 use App\Models\ProjectRoleDefinition;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ProjectMember extends Model
 {
@@ -42,6 +44,11 @@ class ProjectMember extends Model
     public function roleDefinition(): BelongsTo
     {
         return $this->belongsTo(ProjectRoleDefinition::class);
+    }
+
+    public function capacities(): HasMany
+    {
+        return $this->hasMany(MemberCapacity::class);
     }
 
     public function isPending(): bool

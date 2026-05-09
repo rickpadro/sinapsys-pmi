@@ -5,6 +5,8 @@ const STATUS_COLOR = { planned: '#9B9DB0', active: '#4A6CF7', completed: '#00CA7
 export default function TimelineRow({ section, pct, widthPct, fmtDay }) {
     const color = STATUS_COLOR[section.status] ?? '#9B9DB0';
 
+    const hasCritical = section.tasks?.some(t => t.on_critical_path);
+
     return (
         <div className="flex">
             {/* Section label */}
@@ -32,7 +34,7 @@ export default function TimelineRow({ section, pct, widthPct, fmtDay }) {
                         }}
                     >
                         <span className="text-[10px] truncate" style={{ color }}>
-                            {section.name}
+                            {hasCritical && '🔴 '}{section.name}
                         </span>
                     </div>
                 )}

@@ -26,7 +26,7 @@ export default function BoardCard({ task, customFields, onDragStart, onClick }) 
             style={{
                 backgroundColor: 'var(--surface)',
                 borderColor: 'var(--border)',
-                borderLeft: `3px solid ${PRIORITY_BORDER[task.priority] ?? '#C4C4C4'}`,
+                borderLeft: `${task.on_critical_path ? '4px' : '3px'} solid ${task.on_critical_path ? '#E44258' : (PRIORITY_BORDER[task.priority] ?? '#C4C4C4')}`,
             }}
         >
             <div className="p-3 space-y-2">
@@ -37,6 +37,12 @@ export default function BoardCard({ task, customFields, onDragStart, onClick }) 
                 >
                     {task.name}
                 </p>
+
+                {task.on_critical_path && (
+                    <span className="text-[9px] font-bold" style={{ color: '#E44258' }}>
+                        🔴 CRITICAL PATH{task.is_blocker ? ' · ⚠ BLOCKER' : ''}
+                    </span>
+                )}
 
                 {/* Custom field values */}
                 {cfValues.length > 0 && (

@@ -2,18 +2,22 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
+use App\Models\Milestone;
+use App\Models\ProjectDecision;
 use App\Models\ProjectRoleDefinition;
+use App\Models\Risk;
 
 // Section, CustomField, MethodologyTemplate importados implícitamente via Eloquent
 
 class Project extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -96,6 +100,21 @@ class Project extends Model
     public function template(): BelongsTo
     {
         return $this->belongsTo(MethodologyTemplate::class, 'template_id');
+    }
+
+    public function milestones(): HasMany
+    {
+        return $this->hasMany(Milestone::class)->orderBy('target_date');
+    }
+
+    public function risks(): HasMany
+    {
+        return $this->hasMany(Risk::class)->orderByDesc('created_at');
+    }
+
+    public function decisions(): HasMany
+    {
+        return $this->hasMany(ProjectDecision::class)->orderBy('order');
     }
 
     public function scopeScrum($query)

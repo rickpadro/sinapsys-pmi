@@ -2,15 +2,20 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use App\Models\Milestone;
+use App\Models\RiskMitigation;
 use App\Models\TaskDependency;
 use App\Models\TimeEntry;
 
 class Task extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'user_id',
         'assigned_to',
@@ -27,6 +32,9 @@ class Task extends Model
         'completed_at',
         'status',
         'order_in_section',
+        'linked_milestone_id',
+        'is_blocker',
+        'on_critical_path',
     ];
 
     protected function casts(): array
@@ -39,6 +47,8 @@ class Task extends Model
             'priority'         => 'integer',
             'steps'            => 'array',
             'order_in_section' => 'integer',
+        'is_blocker'       => 'boolean',
+        'on_critical_path' => 'boolean',
         ];
     }
 
@@ -89,6 +99,16 @@ class Task extends Model
         return $this->hasMany(TimeEntry::class)->orderByDesc('logged_on');
     }
 
+    public function linkedMilestone(): BelongsTo
+    {
+        return $this->belongsTo(Milestone::class, 'linked_milestone_id');
+    }
+
+    public function riskMitigations(): HasMany
+    {
+        return $this->hasMany(RiskMitigation::class);
+    }
+
     // Accessor: total logged minutes
     public function getTotalLoggedMinutesAttribute(): int
     {
@@ -121,5 +141,15 @@ class Task extends Model
     public function scopeCompleted($query)
     {
         return $query->where('done', true);
+    }
+
+    public function scopeBlockers($query)
+    {
+        return $query->where('is_blocker', true);
+    }
+
+    public function scopeOnCriticalPath($query)
+    {
+        return $query->where('on_critical_path', true);
     }
 }

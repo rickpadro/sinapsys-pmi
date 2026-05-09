@@ -57,6 +57,11 @@ export default function Show({ project, aiMessages, members, currentRole, isOwne
                     </span>
                 </div>
                 <div className="flex flex-wrap gap-2">
+                    <Link href={url(`/projects/${project.id}/overview`)}>
+                        <Button variant="outline" size="sm">
+                            <LayoutGrid size={14} /> Overview
+                        </Button>
+                    </Link>
                     <Link href={url(`/projects/${project.id}/board`)}>
                         <Button variant="outline" size="sm">
                             <LayoutGrid size={14} /> Tablero
@@ -280,6 +285,9 @@ export default function Show({ project, aiMessages, members, currentRole, isOwne
                                 description="Story points completados por sección/sprint."
                                 href={url(`/projects/${project.id}/reports/velocity`)}
                             />
+                            <ConfigCard title="Hitos" description="Hitos contractuales con fechas duras y estado de riesgo." href={url(`/projects/${project.id}/milestones`)} count={project.milestones?.length ?? 0} unit="hitos"/>
+                            <ConfigCard title="Riesgos" description="Registro de riesgos con matriz prob×impacto." href={url(`/projects/${project.id}/risks`)} count={project.risks?.length ?? 0} unit="riesgos"/>
+                            <ConfigCard title="Decisiones" description="Log de decisiones y definiciones del proyecto." href={url(`/projects/${project.id}/decisions`)} count={project.decisions?.length ?? 0} unit="decisiones"/>
                         </div>
                     </TabsContent>
                 )}

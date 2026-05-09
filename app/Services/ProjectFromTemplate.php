@@ -21,6 +21,7 @@ class ProjectFromTemplate
                     'name'       => $section['name'],
                     'order'      => $section['order'],
                     'status'     => $section['status'] ?? 'planned',
+                    'type'       => $section['type'] ?? 'sprint',
                 ]);
             }
 

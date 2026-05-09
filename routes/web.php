@@ -3,7 +3,13 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\BoardViewController;
+use App\Http\Controllers\MemberCapacityController;
+use App\Http\Controllers\MilestoneController;
+use App\Http\Controllers\ProjectDecisionController;
+use App\Http\Controllers\ProjectOverviewController;
 use App\Http\Controllers\PushController;
+use App\Http\Controllers\RiskController;
+use App\Http\Controllers\RiskMitigationController;
 use App\Http\Controllers\BurndownReportController;
 use App\Http\Controllers\CustomFieldController;
 use App\Http\Controllers\ProjectRoleController;
@@ -170,6 +176,40 @@ Route::middleware('auth')->group(function () {
     // v2.1 · P-08 Push Notifications
     Route::post('/push/subscribe',   [PushController::class, 'subscribe'])->name('push.subscribe');
     Route::post('/push/unsubscribe', [PushController::class, 'unsubscribe'])->name('push.unsubscribe');
+
+    // v3.0 · Milestones
+    Route::get('/projects/{project}/milestones', [MilestoneController::class, 'index'])->name('projects.milestones.index');
+    Route::post('/projects/{project}/milestones', [MilestoneController::class, 'store'])->name('projects.milestones.store');
+    Route::put('/projects/{project}/milestones/{milestone}', [MilestoneController::class, 'update'])->name('projects.milestones.update');
+    Route::delete('/projects/{project}/milestones/{milestone}', [MilestoneController::class, 'destroy'])->name('projects.milestones.destroy');
+    Route::post('/projects/{project}/milestones/{milestone}/link-tasks', [MilestoneController::class, 'linkTasks'])->name('projects.milestones.link-tasks');
+    Route::patch('/projects/{project}/milestones/{milestone}/mark-met', [MilestoneController::class, 'markMet'])->name('projects.milestones.mark-met');
+
+    // v3.0 · Risks
+    Route::get('/projects/{project}/risks', [RiskController::class, 'index'])->name('projects.risks.index');
+    Route::post('/projects/{project}/risks', [RiskController::class, 'store'])->name('projects.risks.store');
+    Route::put('/projects/{project}/risks/{risk}', [RiskController::class, 'update'])->name('projects.risks.update');
+    Route::delete('/projects/{project}/risks/{risk}', [RiskController::class, 'destroy'])->name('projects.risks.destroy');
+    Route::patch('/projects/{project}/risks/{risk}/materialize', [RiskController::class, 'materialize'])->name('projects.risks.materialize');
+    Route::patch('/projects/{project}/risks/{risk}/close', [RiskController::class, 'close'])->name('projects.risks.close');
+    Route::post('/projects/{project}/risks/{risk}/mitigations', [RiskMitigationController::class, 'store'])->name('projects.risks.mitigations.store');
+    Route::delete('/projects/{project}/risks/{risk}/mitigations/{mitigation}', [RiskMitigationController::class, 'destroy'])->name('projects.risks.mitigations.destroy');
+
+    // v3.0 · Decisions
+    Route::get('/projects/{project}/decisions', [ProjectDecisionController::class, 'index'])->name('projects.decisions.index');
+    Route::post('/projects/{project}/decisions', [ProjectDecisionController::class, 'store'])->name('projects.decisions.store');
+    Route::put('/projects/{project}/decisions/{decision}', [ProjectDecisionController::class, 'update'])->name('projects.decisions.update');
+    Route::delete('/projects/{project}/decisions/{decision}', [ProjectDecisionController::class, 'destroy'])->name('projects.decisions.destroy');
+    Route::patch('/projects/{project}/decisions/{decision}/confirm', [ProjectDecisionController::class, 'confirm'])->name('projects.decisions.confirm');
+    Route::patch('/projects/{project}/decisions/{decision}/reject', [ProjectDecisionController::class, 'reject'])->name('projects.decisions.reject');
+
+    // v3.0 · Capacity
+    Route::get('/projects/{project}/capacity', [MemberCapacityController::class, 'index'])->name('projects.capacity.index');
+    Route::post('/projects/{project}/members/{member}/capacity', [MemberCapacityController::class, 'upsert'])->name('projects.capacity.upsert');
+    Route::post('/projects/{project}/capacity/bulk', [MemberCapacityController::class, 'bulkUpsert'])->name('projects.capacity.bulk');
+
+    // v3.0 · Project Overview
+    Route::get('/projects/{project}/overview', [ProjectOverviewController::class, 'show'])->name('projects.overview');
 
     Route::get('/matrix', function () {
         $user = request()->user();

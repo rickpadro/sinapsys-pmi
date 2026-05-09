@@ -34,8 +34,16 @@ export default function SectionCard({ section, canEdit, onAddTask, onDelete, url
                     className="h-2.5 w-2.5 rounded-full flex-shrink-0"
                     style={{ backgroundColor: STATUS_COLORS[section.status] ?? 'var(--border)' }}
                 />
-                <span className="flex-1 text-sm font-semibold" style={{ color: 'var(--foreground)' }}>
+                <span className="flex-1 text-sm font-semibold flex items-center" style={{ color: 'var(--foreground)' }}>
                     {section.name}
+                    {section.type && section.type !== 'sprint' && (
+                        <span className="text-[9px] px-1 py-0.5 rounded ml-1" style={{
+                            backgroundColor: section.type === 'discovery' ? '#4A6CF720' : '#9B9DB020',
+                            color: section.type === 'discovery' ? '#4A6CF7' : '#9B9DB0'
+                        }}>
+                            {section.type === 'discovery' ? '🔍 Discovery' : '➿ Track'}
+                        </span>
+                    )}
                 </span>
                 <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
                     {doneTasks}/{totalTasks}
