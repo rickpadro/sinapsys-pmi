@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use App\Models\TaskDependency;
+use App\Models\TimeEntry;
 
 class Task extends Model
 {
@@ -70,6 +72,27 @@ class Task extends Model
     public function customFieldValues(): MorphMany
     {
         return $this->morphMany(CustomFieldValue::class, 'target');
+    }
+
+    public function dependencies(): HasMany
+    {
+        return $this->hasMany(TaskDependency::class);
+    }
+
+    public function dependents(): HasMany
+    {
+        return $this->hasMany(TaskDependency::class, 'depends_on_task_id');
+    }
+
+    public function timeEntries(): HasMany
+    {
+        return $this->hasMany(TimeEntry::class)->orderByDesc('logged_on');
+    }
+
+    // Accessor: total logged minutes
+    public function getTotalLoggedMinutesAttribute(): int
+    {
+        return $this->timeEntries()->sum('minutes');
     }
 
     // Scopes

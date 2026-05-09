@@ -44,4 +44,24 @@ class BurndownReportController extends Controller
             'currentRole'    => $role,
         ]);
     }
+
+    public function data(Request $request, Project $project, BurndownCalculator $calc)
+    {
+        abort_if(!$project->getRoleFor($request->user()->id), 403);
+
+        $project->load('customFields');
+
+        $sectionId = $request->integer('section');
+        $section = $project->sections()
+            ->with(['tasks.customFieldValues.customField'])
+            ->find($sectionId);
+
+        if (!$section) {
+            return response()->json([]);
+        }
+
+        $section->setRelation('project', $project);
+
+        return response()->json($calc->calculate($section));
+    }
 }

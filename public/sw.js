@@ -121,6 +121,27 @@ self.addEventListener('sync', (event) => {
     }
 });
 
+// ─── Push Notifications ───────────────────────────────────────────────────────
+self.addEventListener('push', (event) => {
+    if (!event.data) return;
+    const data = event.data.json();
+    event.waitUntil(
+        self.registration.showNotification(data.title || 'SinapSYS', {
+            body:  data.body  || '',
+            icon:  data.icon  || `${BASE}/icon_sinapsys.png`,
+            badge: `${BASE}/favicon.png`,
+            data:  { url: data.url || `${BASE}/` },
+        })
+    );
+});
+
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    event.waitUntil(
+        clients.openWindow(event.notification.data?.url || `${BASE}/`)
+    );
+});
+
 // ─── Messages ─────────────────────────────────────────────────────────────────
 self.addEventListener('message', (event) => {
     if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();

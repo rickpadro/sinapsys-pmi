@@ -14,7 +14,7 @@ Plataforma personal de gestión de proyectos PMI con tareas, calendario y asiste
 
 ## Tech Stack
 
-Laravel 11 + Inertia.js 2 + React 19 + Tailwind CSS v4 + shadcn/ui + MySQL 8 + Sanctum + Anthropic API + Recharts
+Laravel 12 + Inertia.js 2 + React 19 + Tailwind CSS v4 + shadcn/ui + MySQL 8 + Sanctum + Anthropic API + Recharts
 
 ## Arquitectura
 
@@ -27,6 +27,7 @@ Laravel 11 + Inertia.js 2 + React 19 + Tailwind CSS v4 + shadcn/ui + MySQL 8 + S
 - `resources/js/Components/` — Componentes React organizados por dominio
 - `resources/js/Components/ui/` — Primitivas shadcn/ui
 - `resources/js/Lib/` — Utilidades (cn, constants)
+- `resources/js/Hooks/` — Hooks personalizados (useDragDrop, useCustomFields, useMethodologyView, useBurndown)
 - `database/migrations/` — Migraciones MySQL
 
 ### Flujo de Datos
@@ -108,11 +109,12 @@ Browser → Inertia request → Laravel Controller → Eloquent → MySQL → Co
 1. **Controllers retornan `Inertia::render()` o `redirect()`.** Nunca `response()->json()`.
 2. **Validación en Form Requests.** Controllers no validan.
 3. **Nunca commitear `.env`.** `ANTHROPIC_API_KEY` nunca expuesta al frontend.
-4. **Phase tasks son JSON en `projects.phase_tasks`.** No entidades separadas.
+4. ~~**Phase tasks son JSON en `projects.phase_tasks`.** No entidades separadas.~~ **DEROGADA por DDS v2.0.** Sections son tabla normalizada (`sections`). El campo `projects.phase_tasks` se mantiene como deprecated.
 5. **Colores hex validados** con regex en `ProjectRequest`.
 6. **Dark mode obligatorio.** CSS custom properties, nunca colores hardcodeados.
 7. **API Anthropic solo desde backend.** Frontend envía texto plano al controller.
 8. **Un componente por archivo, máx 300 líneas.**
+9. **Custom Fields polimórficos solo vía `CustomFieldResolver` service.** Nunca acceder `custom_field_values` directo desde controllers — usar el service para garantizar casts correctos.
 
 ## Blueprint
 

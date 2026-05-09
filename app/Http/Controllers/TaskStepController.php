@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ReorderTaskStepsRequest;
 use App\Http\Requests\StoreTaskStepRequest;
 use App\Http\Requests\UpdateTaskStepRequest;
 use App\Models\Task;
@@ -57,13 +58,11 @@ class TaskStepController extends Controller
         return back();
     }
 
-    public function reorder(Request $request, Task $task)
+    public function reorder(ReorderTaskStepsRequest $request, Task $task)
     {
         abort_if(!$this->canMutateTask($request->user()->id, $task), 403);
 
-        $request->validate(['order' => ['required', 'array']]);
-
-        foreach ($request->order as $stepId => $position) {
+        foreach ($request->validated()['order'] as $stepId => $position) {
             TaskStep::where('id', $stepId)
                 ->where('task_id', $task->id)
                 ->update(['order' => (int) $position]);

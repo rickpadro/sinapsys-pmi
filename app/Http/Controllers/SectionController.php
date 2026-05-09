@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ReorderSectionsRequest;
 use App\Http\Requests\StoreSectionRequest;
 use App\Http\Requests\UpdateSectionRequest;
 use App\Models\Project;
@@ -47,13 +48,11 @@ class SectionController extends Controller
         return back()->with('success', 'Sección eliminada.');
     }
 
-    public function reorder(Request $request, Project $project)
+    public function reorder(ReorderSectionsRequest $request, Project $project)
     {
         abort_if(!in_array($project->getRoleFor($request->user()->id), ['owner', 'manager']), 403);
 
-        $request->validate(['order' => ['required', 'array']]);
-
-        app(SectionReorder::class)->reorder($project, $request->order);
+        app(SectionReorder::class)->reorder($project, $request->validated()['order']);
 
         return response()->json(['ok' => true]);
     }

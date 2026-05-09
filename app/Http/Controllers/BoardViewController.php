@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\MoveTaskRequest;
 use App\Models\Project;
 use App\Models\Task;
 use App\Services\TaskMover;
@@ -47,20 +48,16 @@ class BoardViewController extends Controller
         ]);
     }
 
-    public function moveTask(Request $request, Project $project)
+    public function moveTask(MoveTaskRequest $request, Project $project)
     {
         abort_if(!in_array($project->getRoleFor($request->user()->id), ['owner', 'manager', 'contributor']), 403);
 
-        $request->validate([
-            'task_id'        => ['required', 'exists:tasks,id'],
-            'section_id'     => ['required', 'exists:sections,id'],
-            'order_in_section' => ['required', 'integer', 'min:0'],
-        ]);
+        $data = $request->validated();
 
-        $task = Task::findOrFail($request->task_id);
+        $task = Task::findOrFail($data['task_id']);
         abort_if($task->project_id !== $project->id, 403);
 
-        app(TaskMover::class)->move($task, $request->section_id, $request->order_in_section);
+        app(TaskMover::class)->move($task, $data['section_id'], $data['order_in_section']);
 
         return response()->json(['ok' => true]);
     }

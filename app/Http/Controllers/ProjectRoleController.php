@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreProjectRoleRequest;
+use App\Http\Requests\UpdateProjectRoleRequest;
 use App\Models\Project;
 use App\Models\ProjectRoleDefinition;
 use Illuminate\Http\Request;
@@ -22,17 +24,11 @@ class ProjectRoleController extends Controller
         ]);
     }
 
-    public function store(Request $request, Project $project)
+    public function store(StoreProjectRoleRequest $request, Project $project)
     {
         abort_if(!in_array($project->getRoleFor($request->user()->id), ['owner', 'manager']), 403);
 
-        $data = $request->validate([
-            'name'                    => ['required', 'string', 'max:80'],
-            'permissions'             => ['required', 'array'],
-            'permissions.can_edit'    => ['boolean'],
-            'permissions.can_invite'  => ['boolean'],
-            'permissions.can_delete'  => ['boolean'],
-        ]);
+        $data = $request->validated();
 
         $maxOrder = $project->roleDefinitions()->max('order') ?? -1;
 
@@ -41,20 +37,12 @@ class ProjectRoleController extends Controller
         return back()->with('success', 'Rol creado.');
     }
 
-    public function update(Request $request, Project $project, ProjectRoleDefinition $role)
+    public function update(UpdateProjectRoleRequest $request, Project $project, ProjectRoleDefinition $role)
     {
         abort_if($role->project_id !== $project->id, 404);
         abort_if(!in_array($project->getRoleFor($request->user()->id), ['owner', 'manager']), 403);
 
-        $data = $request->validate([
-            'name'                    => ['required', 'string', 'max:80'],
-            'permissions'             => ['required', 'array'],
-            'permissions.can_edit'    => ['boolean'],
-            'permissions.can_invite'  => ['boolean'],
-            'permissions.can_delete'  => ['boolean'],
-        ]);
-
-        $role->update($data);
+        $role->update($request->validated());
 
         return back()->with('success', 'Rol actualizado.');
     }

@@ -274,6 +274,15 @@ export default function TaskForm({ open, onClose, task, projects, projectMembers
                         )}
                     </div>
 
+                    {/* Dependencies note */}
+                    {isEdit && (
+                        <div className="text-xs rounded-md px-3 py-2" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
+                            <span className="font-medium" style={{ color: 'var(--foreground)' }}>Dependencias:</span>
+                            {' '}
+                            <span style={{ color: 'var(--text-muted)' }}>Gestiona las dependencias desde la vista del proyecto.</span>
+                        </div>
+                    )}
+
                     {/* Actions */}
                     <div className="flex justify-end gap-2 pt-2">
                         <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>

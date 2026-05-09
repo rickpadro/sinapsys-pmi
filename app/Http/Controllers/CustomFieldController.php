@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCustomFieldRequest;
+use App\Http\Requests\UpsertCustomFieldValueRequest;
 use App\Models\CustomField;
 use App\Models\CustomFieldValue;
 use App\Models\Project;
@@ -58,28 +59,29 @@ class CustomFieldController extends Controller
         return back()->with('success', 'Campo eliminado.');
     }
 
-    public function upsertValue(Request $request)
+    public function upsertValue(UpsertCustomFieldValueRequest $request)
     {
-        $request->validate([
-            'custom_field_id' => ['required', 'exists:custom_fields,id'],
-            'target_type'     => ['required', 'string'],
-            'target_id'       => ['required', 'integer'],
-            'value'           => ['nullable'],
-            'value_json'      => ['nullable', 'array'],
-        ]);
+        $data = $request->validated();
 
         CustomFieldValue::updateOrCreate(
             [
-                'custom_field_id' => $request->custom_field_id,
-                'target_type'     => $request->target_type,
-                'target_id'       => $request->target_id,
+                'custom_field_id' => $data['custom_field_id'],
+                'target_type'     => $data['target_type'],
+                'target_id'       => $data['target_id'],
             ],
             [
-                'value'      => $request->value,
-                'value_json' => $request->value_json,
+                'value'      => $data['value'] ?? null,
+                'value_json' => $data['value_json'] ?? null,
             ]
         );
 
         return back();
+    }
+
+    public function listJson(Request $request, Project $project)
+    {
+        abort_if(!$project->getRoleFor($request->user()->id), 403);
+
+        return response()->json($project->customFields()->orderBy('order')->get());
     }
 }

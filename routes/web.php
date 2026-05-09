@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\BoardViewController;
+use App\Http\Controllers\PushController;
 use App\Http\Controllers\BurndownReportController;
 use App\Http\Controllers\CustomFieldController;
 use App\Http\Controllers\ProjectRoleController;
@@ -18,7 +19,9 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectMemberController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TaskDependencyController;
 use App\Http\Controllers\TaskStepController;
+use App\Http\Controllers\TimeEntryController;
 use App\Http\Controllers\UserAdminController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -108,6 +111,16 @@ Route::middleware('auth')->group(function () {
     Route::delete('/projects/{project}/sections/{section}', [SectionController::class, 'destroy'])->name('sections.destroy');
     Route::post('/projects/{project}/sections/reorder', [SectionController::class, 'reorder'])->name('sections.reorder');
 
+    // v2.1 · P-04 Task Dependencies
+    Route::get('/tasks/{task}/dependencies', [TaskDependencyController::class, 'index'])->name('task-dependencies.index');
+    Route::post('/tasks/{task}/dependencies', [TaskDependencyController::class, 'store'])->name('task-dependencies.store');
+    Route::delete('/tasks/{task}/dependencies/{dependency}', [TaskDependencyController::class, 'destroy'])->name('task-dependencies.destroy');
+
+    // v2.1 · P-07 Time Tracking
+    Route::get('/tasks/{task}/time-entries', [TimeEntryController::class, 'index'])->name('time-entries.index');
+    Route::post('/tasks/{task}/time-entries', [TimeEntryController::class, 'store'])->name('time-entries.store');
+    Route::delete('/tasks/{task}/time-entries/{entry}', [TimeEntryController::class, 'destroy'])->name('time-entries.destroy');
+
     // v2.0 · Task Steps
     Route::post('/tasks/{task}/steps', [TaskStepController::class, 'store'])->name('task-steps.store');
     Route::put('/tasks/{task}/steps/{step}', [TaskStepController::class, 'update'])->name('task-steps.update');
@@ -131,6 +144,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/projects/{project}/reports/burndown', [BurndownReportController::class, 'show'])->name('projects.reports.burndown');
     Route::get('/projects/{project}/reports/velocity', [VelocityReportController::class, 'show'])->name('projects.reports.velocity');
 
+    // JSON endpoints for frontend hooks
+    Route::get('/projects/{project}/custom-fields/list', [CustomFieldController::class, 'listJson'])->name('custom-fields.list-json');
+    Route::get('/projects/{project}/reports/burndown/data', [BurndownReportController::class, 'data'])->name('reports.burndown.data');
+
     // v2.0 · Project Roles
     Route::get('/projects/{project}/roles', [ProjectRoleController::class, 'index'])->name('projects.roles.index');
     Route::post('/projects/{project}/roles', [ProjectRoleController::class, 'store'])->name('projects.roles.store');
@@ -149,6 +166,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/users/members/{member}', [UserAdminController::class, 'removeFromProject'])->name('users.members.remove');
     Route::post('/users/add-to-project', [UserAdminController::class, 'addToProject'])->name('users.add-to-project');
     Route::patch('/users/{user}/toggle-admin', [UserAdminController::class, 'toggleAdmin'])->name('users.toggle-admin');
+
+    // v2.1 · P-08 Push Notifications
+    Route::post('/push/subscribe',   [PushController::class, 'subscribe'])->name('push.subscribe');
+    Route::post('/push/unsubscribe', [PushController::class, 'unsubscribe'])->name('push.unsubscribe');
 
     Route::get('/matrix', function () {
         $user = request()->user();

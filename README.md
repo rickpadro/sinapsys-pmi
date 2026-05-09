@@ -171,6 +171,16 @@ MAIL_PASSWORD=...
 
 ---
 
+## Versionado
+
+- **v1.x** — Plataforma PMI única. `phase_tasks` JSON.
+- **v2.0** (commit 4b58a97) — Multi-metodología. Sections normalizadas, Custom Fields, Board view, reportes Scrum.
+- **v2.1** — Refactor estructural (Form Requests, sub-componentes, hooks) + Fase 4 (Kanban, dependencias, time tracking, PWA).
+
+Ver `.docs/DDS_SinapSYS_Projects_v2.md` y `.docs/DDS_SinapSYS_Projects_v2.1.md`.
+
+---
+
 ## Licencia
 
 Proyecto privado — SinapSYS Ecosistemas © 2026

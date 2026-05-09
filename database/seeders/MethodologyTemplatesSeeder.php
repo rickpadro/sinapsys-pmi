@@ -72,6 +72,27 @@ class MethodologyTemplatesSeeder extends Seeder
                     ['name' => 'Colaborador', 'permissions' => ['can_edit' => false, 'can_invite' => false, 'can_delete' => false]],
                 ],
             ],
+            [
+                'slug'        => 'kanban',
+                'name'        => 'Kanban',
+                'description' => 'Flujo continuo sin sprints. Visualiza el trabajo en columnas de estado.',
+                'default_view' => 'board',
+                'default_sections' => [
+                    ['name' => 'Por hacer',    'order' => 0, 'status' => 'planned'],
+                    ['name' => 'En progreso',  'order' => 1, 'status' => 'active'],
+                    ['name' => 'En revisión',  'order' => 2, 'status' => 'planned'],
+                    ['name' => 'Hecho',        'order' => 3, 'status' => 'planned'],
+                ],
+                'default_fields' => [
+                    ['name' => 'Etiqueta',  'slug' => 'label',    'field_type' => 'select',  'applies_to' => 'task',
+                     'options' => ['Bug', 'Feature', 'Mejora', 'Docs', 'Infra']],
+                    ['name' => 'Bloqueo',   'slug' => 'blocker',  'field_type' => 'boolean', 'applies_to' => 'task'],
+                ],
+                'default_roles' => [
+                    ['name' => 'Manager',     'permissions' => ['can_edit' => true,  'can_invite' => true,  'can_delete' => false]],
+                    ['name' => 'Colaborador', 'permissions' => ['can_edit' => false, 'can_invite' => false, 'can_delete' => false]],
+                ],
+            ],
         ];
 
         foreach ($templates as $data) {
